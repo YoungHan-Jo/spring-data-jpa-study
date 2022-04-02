@@ -1,6 +1,8 @@
 package com.example.datajpa.repository;
 
+import com.example.datajpa.dto.MemberDto;
 import com.example.datajpa.entity.Member;
+import com.example.datajpa.entity.Team;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    TeamRepository teamRepository;
 
     @Test
     public void testMember() throws Exception {
@@ -81,6 +85,67 @@ class MemberRepositoryTest {
         assertThat(result.size()).isEqualTo(1);
 
     }
+
+    @Test
+    public void queryMethod() throws Exception {
+       //given
+        Member member1 = new Member("member1");
+        Member member2 = new Member("member2");
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+       //when & then
+
+        List<Member> memberTop1 = memberRepository.findTop1By();
+
+        assertThat(memberTop1.get(0).getUsername()).isEqualTo("member1");
+
+        Long count = memberRepository.countAllBy();
+        assertThat(count).isEqualTo(2);
+
+    }
+
+    @Test
+    public void queryTest() throws Exception {
+       //given
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+       //when & then
+
+        List<Member> result = memberRepository.findUser("AAA", 20);
+        assertThat(result.get(0)).isEqualTo(m2);
+
+    }
+    
+    @Test
+    public void queryDto() throws Exception {
+       //given
+        Team teamA = new Team("teamA");
+        teamRepository.save(teamA);
+
+
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        m1.setTeam(teamA);
+        m2.setTeam(teamA);
+
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        //when & then
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto dto : memberDto) {
+            System.out.println("dto = " + dto);
+        }
+
+
+    }
+    
+
+
 
 
 
