@@ -84,6 +84,25 @@ class MemberJpaRepositoryTest {
         assertThat(totalCount).isEqualTo(5);
       
     }
+
+    @Test
+    public void bulkUPdate() throws Exception {
+       //given
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 12));
+        memberJpaRepository.save(new Member("member3", 13));
+        memberJpaRepository.save(new Member("member4", 14));
+        memberJpaRepository.save(new Member("member5", 15));
+
+       //when
+        int resultCount = memberJpaRepository.bulkAgePlus(13);
+
+        assertThat(resultCount).isEqualTo(3);
+
+        //then
+
+    }
+
     
 
 }

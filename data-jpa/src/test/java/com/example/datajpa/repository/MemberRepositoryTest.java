@@ -12,6 +12,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() throws Exception {
@@ -260,6 +264,132 @@ class MemberRepositoryTest {
         assertThat(page.hasNext()).isTrue();
 
     }
+
+    @Test
+    public void bulkUpdate() throws Exception {
+       //given
+        memberRepository.save(new Member("member1", 11));
+        memberRepository.save(new Member("member2", 12));
+        memberRepository.save(new Member("member3", 13));
+        memberRepository.save(new Member("member4", 14));
+        memberRepository.save(new Member("member5", 15));
+
+       //when
+
+        int count = memberRepository.bulkAgePlus(13);
+
+//        em.flush();
+//        em.clear();
+
+        Member member5 = memberRepository.findMemberByUsername("member5");
+        System.out.println("member5 = " + member5.getAge());
+
+        //then
+
+        assertThat(count).isEqualTo(3);
+
+
+    }
+
+    @Test
+    public void findMemberLazy() throws Exception {
+       //given
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member1", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = memberRepository.findByUsername("member1");
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void findMemberFetchJoin() throws Exception {
+        //given
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = memberRepository.findMemberFetchJoin();
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void queryHint() throws Exception {
+       //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+       //when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        em.flush();
+
+        //then
+
+    }
+
+    @Test
+    public void lock() throws Exception {
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> findMember = memberRepository.findLockByUsername("member1");
+
+        em.flush();
+
+        //then
+
+    }
+
+    @Test
+    public void callCustom() throws Exception {
+       //given
+
+        List<Member> memberCustom = memberRepository.findMemberCustom();
+        //when
+
+       //then
+
+    }
+
+
+
+
 
     
 
