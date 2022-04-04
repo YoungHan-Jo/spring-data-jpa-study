@@ -1,6 +1,7 @@
 package com.example.datajpa.repository;
 
 import com.example.datajpa.dto.MemberDto;
+import com.example.datajpa.dto.UsernameDto;
 import com.example.datajpa.entity.Member;
 import com.example.datajpa.entity.Team;
 import org.junit.jupiter.api.Test;
@@ -386,6 +387,33 @@ class MemberRepositoryTest {
        //then
 
     }
+
+    @Test
+    public void projections() throws Exception {
+       //given
+        Team teamA = new Team("teamA");
+        teamRepository.save(teamA);
+
+        Member member1 = new Member("member5", 10, teamA);
+        Member member2 = new Member("member6", 10, teamA);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+       //when
+
+        List<UsernameDto> result = memberRepository.findProjectionsByUsername("member5");
+
+        for (UsernameDto usernameDto : result) {
+            System.out.println("usernameDto = " + usernameDto.getUsername());
+            System.out.println("usernameDto = " + usernameDto.getAge());
+        }
+
+        //then
+
+    }
+
 
 
 

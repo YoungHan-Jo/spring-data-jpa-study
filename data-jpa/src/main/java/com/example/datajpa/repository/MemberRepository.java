@@ -1,6 +1,7 @@
 package com.example.datajpa.repository;
 
 import com.example.datajpa.dto.MemberDto;
+import com.example.datajpa.dto.UsernameDto;
 import com.example.datajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,5 +66,7 @@ public interface MemberRepository extends JpaRepository<Member,Long>, MemberRepo
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByUsername(String username);
+
+    List<UsernameDto> findProjectionsByUsername(@Param("username")String username);
 
 }
